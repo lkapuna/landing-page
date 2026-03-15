@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>תחרות ציורים רומי 🎨</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700;900&family=Heebo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f;
+    --card: #13131a;
+    --border: rgba(255,255,255,0.08);
+    --yellow: #FFD93D;
+    --pink: #FF6FC8;
+    --blue: #4D96FF;
+    --green: #6BCB77;
+    --purple: #A78BFA;
+    --white: #f0eeff;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Rubik', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 20%, rgba(167,139,250,0.18) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 40% at 20% 80%, rgba(77,150,255,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 80% 70%, rgba(255,111,200,0.12) 0%, transparent 60%);
+  }
+  .floating-shapes { position: absolute; inset: 0; pointer-events: none; }
+  .shape {
+    position: absolute;
+    border-radius: 50%;
+    animation: floatShape linear infinite;
+    opacity: 0.5;
+  }
+  @keyframes floatShape {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(-120px) rotate(360deg); opacity: 0; }
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,217,61,0.15);
+    border: 1px solid rgba(255,217,61,0.35);
+    border-radius: 100px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--yellow);
+    margin-bottom: 1.5rem;
+    animation: fadeSlideDown 0.6s ease both;
+  }
+  @keyframes fadeSlideDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+
+  .hero-title {
+    font-size: clamp(2.8rem, 9vw, 6.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+    animation: fadeSlideUp 0.7s ease 0.1s both;
+  }
+  .hero-title .word-draw { color: var(--yellow); }
+  .hero-title .word-compete { color: var(--pink); }
+  @keyframes fadeSlideUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+  .hero-sub {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: rgba(240,238,255,0.65);
+    max-width: 540px;
+    line-height: 1.6;
+    margin: 0 auto 2.5rem;
+    animation: fadeSlideUp 0.7s ease 0.2s both;
+  }
+
+  .cta-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeSlideUp 0.7s ease 0.3s both;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--yellow);
+    color: #1a1200;
+    font-family: 'Rubik', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    padding: 18px 40px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 40px rgba(255,217,61,0.35);
+  }
+  .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(255,217,61,0.5); }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: transparent;
+    color: var(--white);
+    font-family: 'Rubik', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 17px 36px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.25);
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.06); }
+
+  .hero-rating {
+    margin-top: 2.5rem;
+    display: flex; align-items: center; gap: 12px;
+    justify-content: center;
+    color: rgba(240,238,255,0.5);
+    font-size: 14px;
+    animation: fadeSlideUp 0.7s ease 0.45s both;
+  }
+  .stars { color: var(--yellow); font-size: 16px; }
+
+  /* ===== CANVAS DEMO ===== */
+  .canvas-demo {
+    width: 100%;
+    max-width: 700px;
+    margin: 3rem auto 0;
+    position: relative;
+    animation: fadeSlideUp 0.8s ease 0.4s both;
+  }
+  .canvas-frame {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .canvas-topbar {
+    background: rgba(255,255,255,0.04);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .canvas-dots { display: flex; gap: 6px; }
+  .canvas-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .canvas-title-bar { font-size: 14px; color: rgba(255,255,255,0.4); flex: 1; text-align: center; }
+  .canvas-player-tag {
+    font-size: 13px; font-weight: 700;
+    padding: 4px 14px; border-radius: 100px;
+  }
+  .canvas-body { padding: 20px; }
+  .canvas-el {
+    background: white;
+    border-radius: 12px;
+    height: 220px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .canvas-el canvas { border-radius: 12px; }
+  .canvas-toolbar {
+    display: flex; gap: 8px; padding: 14px 20px;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .color-swatch {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .color-swatch.active { border-color: white; transform: scale(1.2); }
+  .tool-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: white;
+    font-size: 13px;
+    padding: 5px 12px;
+    cursor: pointer;
+    margin-right: auto;
+  }
+
+  /* ===== SECTIONS ===== */
+  section { padding: 5rem 1.5rem; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--purple); margin-bottom: 1rem; text-transform: uppercase;
+  }
+  .section-title {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900; line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  .section-sub { font-size: 1.1rem; color: rgba(240,238,255,0.55); max-width: 520px; line-height: 1.65; }
+
+  /* ===== HOW IT WORKS ===== */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 3rem; }
+  .step-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .step-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.18); }
+  .step-num {
+    font-size: 4.5rem; font-weight: 900;
+    position: absolute; top: -10px; left: 16px;
+    opacity: 0.07; line-height: 1;
+    user-select: none;
+  }
+  .step-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+  .step-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .step-desc { font-size: 0.92rem; color: rgba(240,238,255,0.55); line-height: 1.6; }
+
+  /* ===== AI JUDGE ===== */
+  .ai-section { background: linear-gradient(135deg, rgba(167,139,250,0.08) 0%, rgba(77,150,255,0.06) 100%); }
+  .ai-card {
+    background: var(--card);
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-top: 2.5rem;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+  .ai-message { display: flex; gap: 14px; align-items: flex-start; }
+  .ai-avatar {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(167,139,250,0.25), rgba(77,150,255,0.2));
+    border: 1px solid rgba(167,139,250,0.35);
+  }
+  .ai-bubble {
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.2);
+    border-radius: 4px 16px 16px 16px;
+    padding: 14px 18px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(240,238,255,0.85);
+    flex: 1;
+  }
+  .verdict-bar {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .verdict-name { font-weight: 700; font-size: 15px; min-width: 90px; }
+  .verdict-track { flex: 1; height: 8px; background: rgba(255,255,255,0.08); border-radius: 100px; overflow: hidden; }
+  .verdict-fill { height: 100%; border-radius: 100px; transition: width 1.5s ease; }
+  .verdict-score { font-weight: 700; font-size: 14px; min-width: 40px; text-align: left; }
+
+  /* ===== FEATURES ===== */
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 3rem; }
+  .feat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    transition: transform 0.2s;
+  }
+  .feat-card:hover { transform: translateY(-3px); }
+  .feat-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .feat-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .feat-desc { font-size: 0.88rem; color: rgba(240,238,255,0.5); line-height: 1.55; }
+
+  /* ===== REVIEWS ===== */
+  .reviews-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 2.5rem; }
+  .review-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+  }
+  .review-stars { color: var(--yellow); margin-bottom: 1rem; font-size: 18px; }
+  .review-text { font-size: 0.95rem; color: rgba(240,238,255,0.7); line-height: 1.65; margin-bottom: 1.25rem; }
+  .review-author { display: flex; align-items: center; gap: 12px; }
+  .reviewer-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px;
+  }
+  .reviewer-name { font-weight: 700; font-size: 14px; }
+  .reviewer-sub { font-size: 12px; color: rgba(240,238,255,0.4); }
+
+  /* ===== STATS ===== */
+  .stats-row { display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; margin-top: 3rem; }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; line-height: 1; }
+  .stat-label { font-size: 14px; color: rgba(240,238,255,0.45); margin-top: 4px; }
+
+  /* ===== CTA BOTTOM ===== */
+  .cta-bottom {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(255,217,61,0.08) 0%, rgba(255,111,200,0.06) 100%);
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* ===== FOOTER ===== */
+  footer {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    color: rgba(240,238,255,0.25);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+  }
+
+  .divider { width: 100%; height: 1px; background: var(--border); }
+
+  /* ===== SCROLL ANIM ===== */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- =================== HERO =================== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="floating-shapes" id="shapes"></div>
+
+  <!-- ✏️ שנה את הטקסט בתוך ה-badge -->
+  <div class="badge">🎨 משחק ציורים חברתי · AI Judge</div>
+
+  <!-- ✏️ שנה את הכותרת הראשית -->
+  <h1 class="hero-title">
+    <span class="word-draw">ציירו.</span><br>
+    <span class="word-compete">תיהנו.</span><br>
+    תשתפו.
+  </h1>
+
+  <!-- ✏️ שנה את תת-הכותרת -->
+  <p class="hero-sub">
+    משחק ציורים מרובה שחקנים שבו שופט AI אמיתי בוחן כל ציור ומכריז על המנצח - משחק בשידור חי עם חברים, בכל מקום.
+  </p>
+
+  <div class="cta-group">
+    <!-- ✏️ שנה את href="https://romi-drawing-game.onrender.com/" ללינק האמיתי של האפליקציה -->
+    <a href="https://romi-drawing-game.onrender.com/" class="btn-primary">📱 התקן עכשיו - בחינם</a>
+    <a href="#how" class="btn-secondary">▶ איך משחקים?</a>
+  </div>
+
+  <!-- ✏️ שנה את הטקסט של הדירוג -->
+  <div class="hero-rating">
+    <span class="stars">★★★★★</span>
+    <span>4.9 · משחקים שנמשכים לילות שלמים</span>
+  </div>
+
+  <!-- CANVAS DEMO (ניתן לצייר!) -->
+  <div class="canvas-demo">
+    <div class="canvas-frame">
+      <div class="canvas-topbar">
+        <div class="canvas-dots">
+          <div class="canvas-dot" style="background:#FF5F57;"></div>
+          <div class="canvas-dot" style="background:#FEBC2E;"></div>
+          <div class="canvas-dot" style="background:#28C840;"></div>
+        </div>
+        <!-- ✏️ שם המשחק בסרגל העליון -->
+        <div class="canvas-title-bar">תחרות הציורים של רומי 🎨</div>
+        <!-- ✏️ שם שחקן לדוגמה -->
+        <div class="canvas-player-tag" style="background:rgba(255,107,107,0.18);color:#FF6B6B;">🔴 יאיר</div>
+      </div>
+      <div class="canvas-body">
+        <div style="font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+          <!-- ✏️ שנה את הנושא לדוגמה -->
+          <span style="background:rgba(255,217,61,0.15);border:1px solid rgba(255,217,61,0.3);color:#FFD93D;padding:4px 14px;border-radius:100px;font-weight:700;">🏷️ נושא: רכבת</span>
+          <span style="margin-right: auto; background:rgba(255,255,255,0.06);padding:4px 14px;border-radius:100px;">⏱️ 00:42</span>
+        </div>
+        <div class="canvas-el">
+          <canvas id="demoCanvas" width="600" height="200"></canvas>
+        </div>
+      </div>
+      <div class="canvas-toolbar">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <div class="color-swatch active" style="background:#000000;" data-c="#000000"></div>
+          <div class="color-swatch" style="background:#ef4444;" data-c="#ef4444"></div>
+          <div class="color-swatch" style="background:#3b82f6;" data-c="#3b82f6"></div>
+          <div class="color-swatch" style="background:#22c55e;" data-c="#22c55e"></div>
+          <div class="color-swatch" style="background:#a78bfa;" data-c="#a78bfa"></div>
+          <div class="color-swatch" style="background:#f97316;" data-c="#f97316"></div>
+        </div>
+        <button class="tool-btn" id="clearBtn">🗑️ נקה</button>
+        <button class="tool-btn" style="background:rgba(255,217,61,0.15);border-color:rgba(255,217,61,0.3);color:#FFD93D;">✓ סיימתי</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =================== STATS =================== -->
+<section style="padding: 4rem 1.5rem; text-align: center;">
+  <div class="section-inner">
+    <div class="stats-row">
+      <!-- ✏️ שנה את המספרים והתיאורים -->
+      <div class="stat-item reveal">
+        <div class="stat-num" style="color: var(--yellow);">2,500+</div>
+        <div class="stat-label">משחקים שהתקיימו</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-num" style="color: var(--pink);">∞</div>
+        <div class="stat-label">כיף ללא גבול</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-num" style="color: var(--blue);">4</div>
+        <div class="stat-label">שחקנים בו זמנית</div>
+      </div>
+      <div class="stat-item reveal">
+        <div class="stat-num" style="color: var(--green);">AI</div>
+        <div class="stat-label">שופט אמיתי</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =================== HOW IT WORKS =================== -->
+<section id="how">
+  <div class="section-inner">
+    <!-- ✏️ שנה כותרות וטקסטים של השלבים -->
+    <div class="section-label reveal">איך משחקים</div>
+    <h2 class="section-title reveal">ארבעה צעדים לניצחון</h2>
+    <p class="section-sub reveal">פשוט להתחיל, קשה להפסיק - כל סיבוב חדש עם נושא אחר ושפיטה אמיתית</p>
+
+    <div class="steps">
+      <div class="step-card reveal">
+        <div class="step-num">1</div>
+        <div class="step-icon">👥</div>
+        <div class="step-title">הוסף שחקנים</div>
+        <div class="step-desc">הזן 2-4 שחקנים עם שמות וצבעים - מוכן תוך שניות</div>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num">2</div>
+        <div class="step-icon">🎯</div>
+        <div class="step-title">קבל נושא</div>
+        <div class="step-desc">השופט בוחר נושא אקראי - כולם מציירים אותו תוך 60 שניות</div>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num">3</div>
+        <div class="step-icon">🤖</div>
+        <div class="step-title">AI שופט</div>
+        <div class="step-desc">שופט AI בוחן כל ציור ומכריז על המנצח עם הסבר מפורט</div>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num">4</div>
+        <div class="step-icon">⭐</div>
+        <div class="step-title">צבור כוכבים</div>
+        <div class="step-desc">5 משחקונים במשחק - כל ניצחון נותן כוכב, למי שיש הכי הרבה כוכבים אחרי 5 משחקונים מנצח!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =================== AI JUDGE =================== -->
+<section class="ai-section">
+  <div class="section-inner">
+    <div class="section-label reveal" style="color: var(--purple);">השופט</div>
+    <h2 class="section-title reveal">AI שופט אמיתי - לא רנדומלי</h2>
+    <p class="section-sub reveal">השופט מנתח את הציורים, בוחן יצירתיות ודיוק, ומכריז בהסבר אמיתי מדוע הציור שלך ניצח</p>
+
+    <div class="ai-card reveal">
+      <div class="ai-message">
+        <div class="ai-avatar">🤖</div>
+        <!-- ✏️ שנה את דוגמת תגובת השופט -->
+        <div class="ai-bubble">
+          בחנתי את שני הציורים בקפידה. <strong style="color: var(--yellow);">נועה</strong> ציירה רכבת עם פרטים מרשימים - המסילה, הקרונות ואפילו הקיטור. ניתן לזהות בברור. <strong style="color: var(--pink);">יאיר</strong> ניסה אבל הציור מופשט מדי. הניצחון הולך לנועה! ⭐
+        </div>
+      </div>
+
+      <div style="font-size: 13px; color: rgba(240,238,255,0.4); padding: 0 4px;">ניקוד השיפוט:</div>
+
+      <!-- ✏️ שנה שמות וציונים -->
+      <div class="verdict-bar">
+        <div class="verdict-name" style="color: var(--yellow);">⭐ נועה</div>
+        <div class="verdict-track"><div class="verdict-fill" id="bar1" style="width: 0%; background: var(--yellow);"></div></div>
+        <div class="verdict-score" style="color: var(--yellow);">87</div>
+      </div>
+      <div class="verdict-bar">
+        <div class="verdict-name" style="color: rgba(240,238,255,0.5);">יאיר</div>
+        <div class="verdict-track"><div class="verdict-fill" id="bar2" style="width: 0%; background: rgba(255,255,255,0.2);"></div></div>
+        <div class="verdict-score" style="color: rgba(240,238,255,0.5);">54</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =================== FEATURES =================== -->
+<section>
+  <div class="section-inner">
+    <div class="section-label reveal" style="color: var(--blue);">פיצ'רים</div>
+    <!-- ✏️ שנה כותרת ופיצ'רים -->
+    <h2 class="section-title reveal">כל מה שצריך למשחק מושלם</h2>
+
+    <div class="features-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">מהיר ומיידי</div>
+        <div class="feat-desc">בלי הרשמה, בלי עיכובים - פתח ומשחק תוך 10 שניות</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🖌️</div>
+        <div class="feat-title">12 צבעים + סגנונות</div>
+        <div class="feat-desc">פלטת צבעים עשירה וגודל מברשת מתכוונן לכל סגנון</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🌐</div>
+        <div class="feat-title">משחק מקוון</div>
+        <div class="feat-desc">שחק עם חברים מרחוק בחדר חי - בלי להיות באותו חדר</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">📱</div>
+        <div class="feat-title">עובד על הכל</div>
+        <div class="feat-desc">iOS, Android, מחשב - אפשר להתקין כ-PWA ישירות</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🎯</div>
+        <div class="feat-title">נושאים אינסופיים</div>
+        <div class="feat-desc">מאות נושאים לציור - כל סיבוב הפתעה חדשה</div>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🏆</div>
+        <div class="feat-title">לוח מובילים</div>
+        <div class="feat-desc">עקוב אחר הביצועים שלך וראה מי שולט ברשימה</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =================== REVIEWS =================== -->
+<section>
+  <div class="section-inner">
+    <div class="section-label reveal" style="color: var(--green);">ביקורות</div>
+    <h2 class="section-title reveal">מה אומרים השחקנים?</h2>
+
+    <div class="reviews-grid">
+      <!-- ✏️ שנה ביקורות, שמות, ותיאורים -->
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"שיחקנו כל המשפחה בשישי בלילה וצחקנו עד דמעות. השופט ה-AI נותן הסברים מצחיקים!"</div>
+        <div class="review-author">
+          <div class="reviewer-avatar" style="background:rgba(255,107,107,0.2);color:#FF6B6B;">ד</div>
+          <div>
+            <div class="reviewer-name">דנה ל.</div>
+            <div class="reviewer-sub">שיחקה 23 סיבובים השבוע</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"המשחק הטוב ביותר לערבי חברים. פשוט לפתוח, קשה להפסיק. הניצחון תמיד מרגיש מוצדק."</div>
+        <div class="review-author">
+          <div class="reviewer-avatar" style="background:rgba(77,150,255,0.2);color:#4D96FF;">מ</div>
+          <div>
+            <div class="reviewer-name">מיכאל ר.</div>
+            <div class="reviewer-sub">אלוף המשחק 3 שבועות ברצף</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card reveal">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"גם שלא יודעים לצייר זה כיף. לפעמים הציורים הכי גרועים הם הכי מצחיקים!"</div>
+        <div class="review-author">
+          <div class="reviewer-avatar" style="background:rgba(107,203,119,0.2);color:#6BCB77;">ש</div>
+          <div>
+            <div class="reviewer-name">שיר ב.</div>
+            <div class="reviewer-sub">"אני מצייר גרוע אבל עדיין משחק"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =================== FINAL CTA =================== -->
+<section class="cta-bottom">
+  <div class="section-inner" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+    <div class="section-label reveal" style="color: var(--yellow);">מוכנים?</div>
+    <!-- ✏️ שנה את כותרת ה-CTA הסופי -->
+    <h2 class="section-title reveal">הצייר שבך<br>מחכה לצאת לאור</h2>
+    <p class="section-sub reveal" style="margin: 0 auto 2.5rem;">בחינם, פשוט פותחים ומשחקים.</p>
+    <div class="cta-group reveal">
+      <!-- ✏️ שנה את href="https://romi-drawing-game.onrender.com/" ללינק האמיתי -->
+      <a href="https://romi-drawing-game.onrender.com/" class="btn-primary" style="font-size: 1.2rem; padding: 20px 48px;">🎨 שחקו עכשיו - חינם</a>
+    </div>
+    <p class="reveal" style="margin-top: 1.25rem; font-size: 13px; color: rgba(240,238,255,0.3);">זמין ל-iOS · Android · מחשב</p>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<!-- ✏️ שנה את טקסט הפוטר -->
+<footer>
+  <p>© 2025 תחרות הציורים של רומי · נוצר באהבה ע"י אבא ובת ✦ כולל AI שופט אמיתי</p>
+</footer>
+
+<script>
+// ===== FLOATING SHAPES =====
+const shapesEl = document.getElementById('shapes');
+const shapeData = [
+  { size: 60, color: 'rgba(255,217,61,0.5)', left: 10, delay: 0, dur: 8 },
+  { size: 40, color: 'rgba(255,111,200,0.5)', left: 80, delay: 2, dur: 11 },
+  { size: 80, color: 'rgba(77,150,255,0.4)', left: 50, delay: 4, dur: 9 },
+  { size: 30, color: 'rgba(107,203,119,0.5)', left: 25, delay: 1, dur: 12 },
+  { size: 50, color: 'rgba(167,139,250,0.5)', left: 65, delay: 3, dur: 10 },
+  { size: 35, color: 'rgba(255,217,61,0.4)', left: 90, delay: 5, dur: 7 },
+];
+shapeData.forEach(s => {
+  const el = document.createElement('div');
+  el.className = 'shape';
+  el.style.cssText = `width:${s.size}px;height:${s.size}px;background:${s.color};left:${s.left}%;animation-duration:${s.dur}s;animation-delay:${s.delay}s;`;
+  shapesEl.appendChild(el);
+});
+
+// ===== MINI DRAW CANVAS =====
+const canvas = document.getElementById('demoCanvas');
+const ctx = canvas.getContext('2d');
+ctx.fillStyle = 'white';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+let drawing = false;
+let currentColor = '#000000';
+let lastX = 0, lastY = 0;
+
+function getPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const sx = canvas.width / r.width;
+  const sy = canvas.height / r.height;
+  const cx = e.touches ? e.touches[0].clientX : e.clientX;
+  const cy = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: (cx - r.left) * sx, y: (cy - r.top) * sy };
+}
+
+canvas.addEventListener('mousedown', e => { drawing = true; const p = getPos(e); lastX = p.x; lastY = p.y; });
+canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing = true; const p = getPos(e); lastX = p.x; lastY = p.y; });
+canvas.addEventListener('mousemove', e => {
+  if (!drawing) return;
+  const p = getPos(e);
+  ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y);
+  ctx.strokeStyle = currentColor; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.stroke();
+  lastX = p.x; lastY = p.y;
+});
+canvas.addEventListener('touchmove', e => {
+  if (!drawing) return; e.preventDefault();
+  const p = getPos(e);
+  ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y);
+  ctx.strokeStyle = currentColor; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.stroke();
+  lastX = p.x; lastY = p.y;
+}, { passive: false });
+canvas.addEventListener('mouseup', () => drawing = false);
+canvas.addEventListener('mouseleave', () => drawing = false);
+canvas.addEventListener('touchend', () => drawing = false);
+
+document.querySelectorAll('.color-swatch').forEach(sw => {
+  sw.addEventListener('click', () => {
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+    sw.classList.add('active');
+    currentColor = sw.dataset.c;
+  });
+});
+document.getElementById('clearBtn').addEventListener('click', () => {
+  ctx.fillStyle = 'white'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+});
+
+// ===== SCROLL REVEAL =====
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ===== AI BAR ANIMATION =====
+const barObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      setTimeout(() => { document.getElementById('bar1').style.width = '87%'; }, 300);
+      setTimeout(() => { document.getElementById('bar2').style.width = '54%'; }, 500);
+    }
+  });
+}, { threshold: 0.3 });
+const bar1El = document.getElementById('bar1');
+if (bar1El) barObs.observe(bar1El.closest('.ai-card'));
+</script>
+</body>
+</html>
